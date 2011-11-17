@@ -4,6 +4,8 @@ Facebook setup. Thanks to https://github.com/dagerydoo/ShareKit
 
 #import "SHKFacebook.h"
 
+... and <FBSessionDelegate> to the AppDelegate interface.
+
 2. In your AppDelegate, include these two methods (or merge if you already use them, remembering to properly delegate):
 
 - (BOOL)application:(UIApplication *)application 
