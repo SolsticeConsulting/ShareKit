@@ -128,15 +128,19 @@ BOOL SHKinit;
 	if (topViewController == nil)
 		NSAssert(NO, @"ShareKit: There is no view controller to display from");
 	
-		
+    
 	// If a view is already being shown, hide it, and then try again
 	if (currentView != nil)
 	{
 		self.pendingView = vc;
-		[[currentView parentViewController] dismissModalViewControllerAnimated:YES];
+        if ([currentView respondsToSelector:@selector(presentingViewController)]) {
+            [[currentView presentingViewController] dismissModalViewControllerAnimated:YES];
+        } else {
+            [[currentView parentViewController] dismissModalViewControllerAnimated:YES];
+        }
 		return;
 	}
-		
+    
 	// Wrap the view in a nav controller if not already
 	if (![vc respondsToSelector:@selector(pushViewController:animated:)])
 	{
@@ -168,7 +172,7 @@ BOOL SHKinit;
 		[(UINavigationController *)vc toolbar].barStyle = [SHK barStyle];
 		self.currentView = vc;
 	}
-		
+    
 	self.pendingView = nil;		
 }
 
@@ -185,8 +189,10 @@ BOOL SHKinit;
 	if (currentView != nil)
 	{
 		// Dismiss the modal view
-		if ([currentView parentViewController] != nil)
-		{
+        if ([currentView respondsToSelector:@selector(presentingViewController)] && [currentView presentingViewController] != nil) {
+            self.isDismissingView = YES;
+            [[currentView presentingViewController] dismissModalViewControllerAnimated:animated];
+        } else if ([currentView parentViewController] != nil) {
 			self.isDismissingView = YES;
 			[[currentView parentViewController] dismissModalViewControllerAnimated:animated];
 		}
@@ -212,7 +218,7 @@ BOOL SHKinit;
 	
     if (currentRootViewController != nil)
         self.currentRootViewController = nil;
-
+    
 	if (pendingView)
 	{
 		// This is an ugly way to do it, but it works.
@@ -222,7 +228,7 @@ BOOL SHKinit;
 		return;
 	}
 }
-										   
+
 - (UIViewController *)getTopViewController
 {
 	UIViewController *topViewController = currentRootViewController;
@@ -230,7 +236,7 @@ BOOL SHKinit;
 		topViewController = topViewController.modalViewController;
 	return topViewController;
 }
-			
+
 + (UIBarStyle)barStyle
 {
 	if ([SHKCONFIG(barStyle) isEqualToString:@"UIBarStyleBlack"])
@@ -281,7 +287,7 @@ BOOL SHKinit;
 + (NSArray *)favoriteSharersForType:(SHKShareType)type
 {	
 	NSArray *favoriteSharers = [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:@"%@%i", SHKCONFIG(favsPrefixKey), type]];
-		
+    
 	// set defaults
 	if (favoriteSharers == nil)
 	{
@@ -302,7 +308,7 @@ BOOL SHKinit;
 			case SHKShareTypeFile:
 				favoriteSharers = [NSArray arrayWithObjects:@"SHKMail",@"SHKEvernote",nil];
 				break;
-			
+                
 			default:
 				favoriteSharers = [NSArray array];
 		}
@@ -519,7 +525,7 @@ static NSDictionary *sharersDictionary = nil;
 		
 		if (helper.offlineQueue == nil)
 			helper.offlineQueue = [[NSOperationQueue alloc] init];		
-	
+        
 		SHKItem *item;
 		NSString *sharerId, *uid;
 		
@@ -535,7 +541,7 @@ static NSDictionary *sharersDictionary = nil;
 		
 		// Remove offline queue - TODO: only do this if everything was successful?
 		[[NSFileManager defaultManager] removeItemAtPath:[self offlineQueueListPath] error:nil];
-
+        
 	}
 }
 
