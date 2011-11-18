@@ -274,7 +274,7 @@ static NSString *const kSHKFacebookExpiryDateKey=@"kSHKFacebookExpiryDate";
 - (void)dialog:(FBDialog *)dialog didFailWithError:(NSError *)error 
 {
     if ([error code] == NSURLErrorCancelled) return;
-  [self sendDidFailWithError:error];
+    [self sendDidFailWithError:error];
 }
 
 - (BOOL)dialog:(FBDialog*)dialog shouldOpenURLInExternalBrowser:(NSURL*)url
@@ -321,6 +321,7 @@ static NSString *const kSHKFacebookExpiryDateKey=@"kSHKFacebookExpiryDate";
 
 - (void)request:(FBRequest*)aRequest didFailWithError:(NSError*)error 
 {
+    if ([error code] == NSURLErrorCancelled) return;
 	[self sendDidFailWithError:error];
 }
 
